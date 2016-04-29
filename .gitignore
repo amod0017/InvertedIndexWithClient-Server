@@ -1,0 +1,12 @@
+*.lock
+*.prefs
+*.gen
+*.log
+.metadata/.mylyn/.taskListIndex/segments_1
+*.zip
+.metadata/.plugins/org.eclipse.core.resources/.history/3b/7034d5cac20b0016175ed6ae45dac48f
+.metadata/.plugins/org.eclipse.core.resources/.history/68/70d6400ec20b0016175ed6ae45dac48f
+*.class
+HadoopData/.project
+*.classpath
+.metadata/version.ini

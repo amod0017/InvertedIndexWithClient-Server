@@ -1,0 +1,17 @@
+package edu.lamar.server;
+
+import java.io.IOException;
+
+public class Test {
+
+	public static void main(String[] args) {
+		System.out.println("Running jar");
+		try {
+			Runtime.getRuntime().exec(new String[]{"bin/hadoop", "jar /home/hadoop/jar/test.jar /user/hduser/myinput/input /user/hduser/newoutput"});
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println("done");
+	}
+
+}

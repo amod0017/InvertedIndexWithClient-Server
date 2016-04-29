@@ -1,0 +1,5 @@
+package edu.lamar.hadoop;
+
+public class WordcountReducer {
+
+}
