@@ -10,3 +10,6 @@
 HadoopData/.project
 *.classpath
 .metadata/version.ini
+/.metadata
+*.snap
+*.snap
