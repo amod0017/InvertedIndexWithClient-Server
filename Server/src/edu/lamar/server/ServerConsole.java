@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class ServerConsole {
-	static Server server;
+	Server server;
 
 	public ServerConsole(final Server server) {
-		ServerConsole.server = server;
+		this.server = server;
 		try {
 			server.listen();
 		} catch (final IOException e) {
@@ -41,18 +41,15 @@ public class ServerConsole {
 	private void executeCommand(final String message) {
 		if (message.equals("#quit")) {
 			try {
-				ServerConsole.server.sendToAllClients("Server is quitting");
 				display("Server is quitting");
-				ServerConsole.server.close();
+				server.close();
 				System.exit(0);
 			} catch (final IOException e) {
 				e.printStackTrace();
 				System.out.println("Error in quitting server");
 			}
-		} else if (message.equals("#stop")) {
-			ServerConsole.server.sendToAllClients("Server stopped listening");
-			display("Server stopped listening");
-			ServerConsole.server.stopListening();
+		} else if (message.equalsIgnoreCase("#runinvertedindex")) {
+			server.runInvertedIndex();
 		}
 	}
 
