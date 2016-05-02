@@ -1,21 +1,35 @@
 package edu.lamar.client;
 
-public class Client extends AbstractClient{
+import java.io.IOException;
+import java.util.ArrayList;
 
-	public Client(String host, int port) {
+import javax.swing.JOptionPane;
+
+import edu.lamar.client.message.ClientMessage;
+import edu.lamar.client.message.Operator;
+import edu.lamar.client.message.ServerMessage;
+
+public class Client extends AbstractClient {
+	InvertedIndexGui myGui;
+
+	public Client(final String host, final int port, final InvertedIndexGui frame) {
 		super(host, port);
-		// TODO Auto-generated constructor stub
+		myGui = frame;
 	}
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+	public static void main(final String[] args) {
+		final Client c = new Client("localhost", 5555, null);
+		try {
+			c.sendToServer(new ClientMessage(new ArrayList<String>(), Operator.NONE));
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
-	protected void handleMessageFromServer(Object msg) {
-		// TODO Auto-generated method stub
-		
+	protected void handleMessageFromServer(final Object msg) {
+		final ServerMessage serverMessage = (ServerMessage) msg;
+		JOptionPane.showMessageDialog(myGui.getFrmInvertedIndex(), serverMessage.getMyOutput());
 	}
 
 }

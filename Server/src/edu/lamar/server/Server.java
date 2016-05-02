@@ -1,8 +1,6 @@
 package edu.lamar.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,55 +32,33 @@ public class Server extends AbstractServer {
 
 	public Server(final int port) {
 		super(port);
-		initialize();
+		// initialize();
 		console = new ServerConsole(this);
 
-	}
-
-	private void getAllDocumentsName() {
-		try {
-			final Process p = Runtime.getRuntime().exec(Server.HADOOP_HOME + " fs -ls" + hadoopInputPath
-					+ "| awk '{print $8}' | awk -F\"/\" '{print $NF}'");
-			final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			String line;
-			while ((line = bufferedReader.readLine()) != null) {
-				documentList.add(line);
-			}
-		} catch (final IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 	@Override
 	protected void handleMessageFromClient(final Object msg, final ConnectionToClient client) {
 		final ClientMessage clientMessage = (ClientMessage) msg;
 		if (clientMessage.getOperator() == (Operator.NONE)) {
+			System.out.println(clientMessage.getKeyWordsToBeSearched());
 			// just get the word with grep command
-			try {
-				String line;
-				String outputToReturn = "";
-				final Process p = Runtime.getRuntime().exec(Server.HADOOP_HOME + " fs -cat " + hadoopOutputPath
-						+ "/*|grep " + clientMessage.getKeyWordsToBeSearched().get(0));
-				final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-				while ((line = bufferedReader.readLine()) != null) {
-					outputToReturn = outputToReturn + line;
-				}
-				sendToAllClients(outputToReturn);
-			} catch (final IOException e) {
-				e.printStackTrace();
-			}
+			// try {
+			// String line;
+			// String outputToReturn = "";
+			// final Process p = Runtime.getRuntime().exec(Server.HADOOP_HOME +
+			// " fs -cat " + hadoopOutputPath
+			// + "/*|grep " + clientMessage.getKeyWordsToBeSearched().get(0));
+			// final BufferedReader bufferedReader = new BufferedReader(new
+			// InputStreamReader(p.getInputStream()));
+			// while ((line = bufferedReader.readLine()) != null) {
+			// outputToReturn = outputToReturn + line;
+			// }
+			// sendToAllClients(outputToReturn);
+			// } catch (final IOException e) {
+			// e.printStackTrace();
+			// }
 		}
-	}
-
-	/**
-	 * This method will initialize the server to get ready for searching
-	 * keywords. Following are the steps that needs to be done: 1. Run inverted
-	 * index. 2. Fetch all the documents name
-	 */
-
-	private void initialize() {
-		runInvertedIndex();
-		getAllDocumentsName();
 	}
 
 	public void runInvertedIndex() {

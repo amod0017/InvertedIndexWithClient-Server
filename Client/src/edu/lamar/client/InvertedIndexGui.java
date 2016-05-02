@@ -6,18 +6,25 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+import edu.lamar.client.message.ClientMessage;
+import edu.lamar.client.message.Operator;
+
 public class InvertedIndexGui {
 
 	private JFrame frmInvertedIndex;
 	private JTextField textField;
-	private Client client = new Client("localhost", 5555);
+	private Client client;
 	private JButton btnSearch;
+
 	/**
 	 * Launch the application.
 	 */
@@ -27,6 +34,20 @@ public class InvertedIndexGui {
 			public void run() {
 				try {
 					final InvertedIndexGui window = new InvertedIndexGui();
+					window.client = new Client("localhost", 5555, window);
+					window.btnSearch.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(final ActionEvent actionEvent) {
+							final String myKeywords = window.textField.getText();
+							final List<String> myKeywordList = new ArrayList<>();
+							myKeywordList.add(myKeywords);
+							try {
+								window.client.sendToServer(new ClientMessage(myKeywordList, Operator.NONE));
+							} catch (final IOException e) {
+								e.printStackTrace();
+							}
+						}
+					});
 					window.frmInvertedIndex.setVisible(true);
 				} catch (final Exception e) {
 					e.printStackTrace();
@@ -39,7 +60,12 @@ public class InvertedIndexGui {
 	 * Create the application.
 	 */
 	public InvertedIndexGui() {
+
 		initialize();
+	}
+
+	public JFrame getFrmInvertedIndex() {
+		return frmInvertedIndex;
 	}
 
 	/**
@@ -73,14 +99,8 @@ public class InvertedIndexGui {
 		frmInvertedIndex.getContentPane().add(textField, gbc_textField);
 		textField.setColumns(10);
 		btnSearch = new JButton("Search");
-		btnSearch.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent actionEvent) {
-				String myKeywords = textField.getText();
-				//client.sendToServer(new ClientM);
-				
-			}
-		});
+		// client =
+
 		final GridBagConstraints gbc_btnSearch = new GridBagConstraints();
 		gbc_btnSearch.insets = new Insets(0, 0, 0, 5);
 		gbc_btnSearch.gridx = 2;
