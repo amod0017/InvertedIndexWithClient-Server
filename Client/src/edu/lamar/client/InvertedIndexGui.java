@@ -13,17 +13,13 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 import edu.lamar.client.message.ClientMessage;
 import edu.lamar.client.message.Operator;
 
 public class InvertedIndexGui {
-
-	private JFrame frmInvertedIndex;
-	private JTextField textField;
-	private Client client;
-	private JButton btnSearch;
 
 	/**
 	 * Launch the application.
@@ -34,20 +30,6 @@ public class InvertedIndexGui {
 			public void run() {
 				try {
 					final InvertedIndexGui window = new InvertedIndexGui();
-					window.client = new Client("localhost", 5555, window);
-					window.btnSearch.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(final ActionEvent actionEvent) {
-							final String myKeywords = window.textField.getText();
-							final List<String> myKeywordList = new ArrayList<>();
-							myKeywordList.add(myKeywords);
-							try {
-								window.client.sendToServer(new ClientMessage(myKeywordList, Operator.NONE));
-							} catch (final IOException e) {
-								e.printStackTrace();
-							}
-						}
-					});
 					window.frmInvertedIndex.setVisible(true);
 				} catch (final Exception e) {
 					e.printStackTrace();
@@ -55,6 +37,12 @@ public class InvertedIndexGui {
 			}
 		});
 	}
+
+	private JFrame frmInvertedIndex;
+	private JTextField textField;
+	private Client client;
+
+	private JButton btnSearch;
 
 	/**
 	 * Create the application.
@@ -99,8 +87,84 @@ public class InvertedIndexGui {
 		frmInvertedIndex.getContentPane().add(textField, gbc_textField);
 		textField.setColumns(10);
 		btnSearch = new JButton("Search");
-		// client =
+		client = new Client("localhost", 5555, this);
+		try {
+			client.openConnection();
+		} catch (final IOException e1) {
+			e1.printStackTrace();
+		}
+		btnSearch.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent actionEvent) {
+				final String myKeywords = textField.getText();
+				final List<String> myKeywordList = new ArrayList<>();
+				final String[] myKeywordsArray = myKeywords.split(" ");
+				if (myKeywordsArray.length > 1) {
+					if (myKeywordsArray[0].equalsIgnoreCase("not")) {
+						handleNotKeyword(myKeywordList, myKeywordsArray);
+						return;
+					} else if (myKeywordsArray[1].equalsIgnoreCase("and")) {
+						handleAndOperator(myKeywordList, myKeywordsArray);
+						return;
+					} else if (myKeywordsArray[1].equalsIgnoreCase("or")) {
+						handleOrOperator(myKeywordList, myKeywordsArray);
+						return;
+					} else {
+						JOptionPane.showMessageDialog(frmInvertedIndex, "Please enter correct keyword");
+					}
+				}
+				myKeywordList.add(myKeywords);
+				try {
+					client.sendToServer(new ClientMessage(myKeywordList, Operator.NONE));
+				} catch (final IOException e) {
+					e.printStackTrace();
+				}
+			}
 
+			private void handleAndOperator(final List<String> myKeywordList, final String[] myKeywordsArray) {
+				if (myKeywordsArray.length > 3) {
+					JOptionPane.showMessageDialog(frmInvertedIndex,
+							"Only two keyword are supported with and operator as of now");
+					return;
+				}
+				myKeywordList.add(myKeywordsArray[1]);
+				try {
+					client.sendToServer(new ClientMessage(myKeywordList, Operator.AND));
+				} catch (final IOException e) {
+					e.printStackTrace();
+				}
+				return;
+			}
+
+			private void handleNotKeyword(final List<String> myKeywordList, final String[] myKeywordsArray) {
+				if (myKeywordsArray.length > 2) {
+					JOptionPane.showMessageDialog(frmInvertedIndex, "Please enter only one keyword");
+					return;
+				}
+				myKeywordList.add(myKeywordsArray[1]);
+				try {
+					client.sendToServer(new ClientMessage(myKeywordList, Operator.NOT));
+				} catch (final IOException e) {
+					e.printStackTrace();
+				}
+				return;
+			}
+
+			private void handleOrOperator(final List<String> myKeywordList, final String[] myKeywordsArray) {
+				if (myKeywordsArray.length > 3) {
+					JOptionPane.showMessageDialog(frmInvertedIndex,
+							"Only two keyword are supported with or operator as of now");
+					return;
+				}
+				myKeywordList.add(myKeywordsArray[1]);
+				try {
+					client.sendToServer(new ClientMessage(myKeywordList, Operator.OR));
+				} catch (final IOException e) {
+					e.printStackTrace();
+				}
+				return;
+			}
+		});
 		final GridBagConstraints gbc_btnSearch = new GridBagConstraints();
 		gbc_btnSearch.insets = new Insets(0, 0, 0, 5);
 		gbc_btnSearch.gridx = 2;

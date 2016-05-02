@@ -18,8 +18,9 @@ public class Client extends AbstractClient {
 	}
 
 	public static void main(final String[] args) {
-		final Client c = new Client("localhost", 5555, null);
+		final Client c = new Client("localhost", 1111, null);
 		try {
+			c.openConnection();
 			c.sendToServer(new ClientMessage(new ArrayList<String>(), Operator.NONE));
 		} catch (final IOException e) {
 			e.printStackTrace();
