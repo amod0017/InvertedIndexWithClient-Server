@@ -3,11 +3,8 @@ package edu.lamar.client;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import javax.swing.JOptionPane;
-
 import edu.lamar.client.message.ClientMessage;
 import edu.lamar.client.message.Operator;
-import edu.lamar.client.message.ServerMessage;
 
 public class Client extends AbstractClient {
 	InvertedIndexGui myGui;
@@ -29,8 +26,16 @@ public class Client extends AbstractClient {
 
 	@Override
 	protected void handleMessageFromServer(final Object msg) {
-		final ServerMessage serverMessage = (ServerMessage) msg;
-		JOptionPane.showMessageDialog(myGui.getFrmInvertedIndex(), serverMessage.getMyOutput());
+		final String serverMessage = (String) msg;
+		System.out.println(serverMessage);
+		// JOptionPane.showMessageDialog(myGui.getFrmInvertedIndex(),
+		// serverMessage.getMyOutput());
+
+		myGui.getResultPane().setEnabled(true);
+		myGui.getResultPane().setEditable(true);
+		myGui.getResultPane().append(serverMessage);
+		myGui.getResultPane().setEditable(false);
+		myGui.getFrmInvertedIndex().repaint();
 	}
 
 }

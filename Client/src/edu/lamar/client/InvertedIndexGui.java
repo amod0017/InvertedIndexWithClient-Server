@@ -14,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import edu.lamar.client.message.ClientMessage;
@@ -43,6 +44,7 @@ public class InvertedIndexGui {
 	private Client client;
 
 	private JButton btnSearch;
+	private JTextArea resultArea;
 
 	/**
 	 * Create the application.
@@ -56,19 +58,23 @@ public class InvertedIndexGui {
 		return frmInvertedIndex;
 	}
 
+	public JTextArea getResultPane() {
+		return resultArea;
+	}
+
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
 		frmInvertedIndex = new JFrame();
 		frmInvertedIndex.setTitle("Inverted Index");
-		frmInvertedIndex.setBounds(100, 100, 450, 300);
+		frmInvertedIndex.setBounds(100, 100, 695, 488);
 		frmInvertedIndex.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		final GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0, 0, 0, 0, 0 };
-		gridBagLayout.rowHeights = new int[] { 0, 0, 0, 0, 0 };
-		gridBagLayout.columnWeights = new double[] { 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
-		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		gridBagLayout.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+		gridBagLayout.columnWeights = new double[] { 0.0, 1.0, 0.0, 1.0, Double.MIN_VALUE };
+		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		frmInvertedIndex.getContentPane().setLayout(gridBagLayout);
 
 		final JLabel lblEnterKeywordTo = new JLabel("Enter Keyword to Search");
@@ -166,10 +172,22 @@ public class InvertedIndexGui {
 			}
 		});
 		final GridBagConstraints gbc_btnSearch = new GridBagConstraints();
-		gbc_btnSearch.insets = new Insets(0, 0, 0, 5);
+		gbc_btnSearch.insets = new Insets(0, 0, 5, 5);
 		gbc_btnSearch.gridx = 2;
 		gbc_btnSearch.gridy = 3;
 		frmInvertedIndex.getContentPane().add(btnSearch, gbc_btnSearch);
+
+		resultArea = new JTextArea();
+		resultArea.setWrapStyleWord(true);
+		resultArea.setLineWrap(true);
+		resultArea.setEditable(false);
+		final GridBagConstraints gbc_resultArea = new GridBagConstraints();
+		gbc_resultArea.gridwidth = 3;
+		gbc_resultArea.insets = new Insets(0, 0, 0, 5);
+		gbc_resultArea.fill = GridBagConstraints.BOTH;
+		gbc_resultArea.gridx = 1;
+		gbc_resultArea.gridy = 6;
+		frmInvertedIndex.getContentPane().add(resultArea, gbc_resultArea);
 	}
 
 }

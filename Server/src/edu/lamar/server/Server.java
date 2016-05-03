@@ -108,6 +108,8 @@ public class Server extends AbstractServer {
 			final Set<String> output2 = new HashSet<String>();
 			final Set<String> output = new HashSet<String>();
 			try {
+				System.out.println(Server.HADOOP_HOME + " fs -cat " + hadoopOutputPath + "/*|grep "
+						+ clientMessage.getKeyWordsToBeSearched().get(0));
 				final Process p1 = Runtime.getRuntime().exec(Server.HADOOP_HOME + " fs -cat " + hadoopOutputPath
 						+ "/*|grep " + clientMessage.getKeyWordsToBeSearched().get(0));
 				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(p1.getInputStream()));
@@ -115,6 +117,8 @@ public class Server extends AbstractServer {
 					final String[] s1 = line.split("->");
 					output1.addAll(Arrays.asList(s1[1].split(",")));
 				}
+				System.out.println(Server.HADOOP_HOME + " fs -cat " + hadoopOutputPath + "/*|grep "
+						+ clientMessage.getKeyWordsToBeSearched().get(1));
 				final Process p = Runtime.getRuntime().exec(Server.HADOOP_HOME + " fs -cat " + hadoopOutputPath
 						+ "/*|grep " + clientMessage.getKeyWordsToBeSearched().get(1));
 				bufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -144,6 +148,8 @@ public class Server extends AbstractServer {
 		runInvertedIndex();
 		try {
 			String line;
+			System.out.println("executing :" + Server.HADOOP_HOME + " fs -ls " + hadoopInputPath + " awk \'{print $8}\'"
+					+ " sed \'s/.*\\///\'");
 			final Process p = Runtime.getRuntime().exec(
 					Server.HADOOP_HOME + " fs -ls " + hadoopInputPath + " awk \'{print $8}\'" + " sed \'s/.*\\///\'");
 			final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -158,6 +164,8 @@ public class Server extends AbstractServer {
 
 	public void runInvertedIndex() {
 		try {
+			System.out.println("executing :" + Server.HADOOP_HOME + " jar " + Server.INVERTED_INDEX_JAR + " "
+					+ hadoopInputPath + " " + hadoopOutputPath);
 			Runtime.getRuntime().exec(Server.HADOOP_HOME + " jar " + Server.INVERTED_INDEX_JAR + " " + hadoopInputPath
 					+ " " + hadoopOutputPath);
 			Thread.sleep(2000);
