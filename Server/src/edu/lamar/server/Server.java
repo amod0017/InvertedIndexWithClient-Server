@@ -237,9 +237,10 @@ public class Server extends AbstractServer {
 
 			final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(p1.getInputStream()));
 			while ((myCommandOutput = bufferedReader.readLine()) != null) {
-				final String[] myRefactoredOutput = myCommandOutput.split("->");
+				final String[] myRefactoredOutput = myCommandOutput.split("|");
+				System.out.println(myRefactoredOutput);
 				myInvertedIndexOutPutCache.put(myRefactoredOutput[0],
-						new ArrayList<>(Arrays.asList(myRefactoredOutput[1].split(","))));
+						new ArrayList<>(Arrays.asList(myRefactoredOutput[1].split("->"))));
 			}
 			System.out.println("inverted index result");
 			for (final String s : myInvertedIndexOutPutCache.keySet()) {
