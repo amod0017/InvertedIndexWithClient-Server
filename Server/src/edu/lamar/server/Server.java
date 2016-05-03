@@ -230,9 +230,11 @@ public class Server extends AbstractServer {
 	}
 
 	private void updateInvertedIndexCache() {
+		System.out.println("initializing");
 		String myCommandOutput;
 		Process p1;
 		try {
+			System.out.println(Server.HADOOP_HOME + " fs -cat " + hadoopOutputPath);
 			p1 = Runtime.getRuntime().exec(Server.HADOOP_HOME + " fs -cat " + hadoopOutputPath);
 
 			final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(p1.getInputStream()));
@@ -250,6 +252,7 @@ public class Server extends AbstractServer {
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
+		System.out.println("initialization completed");
 	}
 
 }
