@@ -236,11 +236,13 @@ public class Server extends AbstractServer {
 		try {
 			System.out.println(Server.HADOOP_HOME + " fs -cat " + hadoopOutputPath);
 			p1 = Runtime.getRuntime().exec(Server.HADOOP_HOME + " fs -cat " + hadoopOutputPath);
-
 			final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(p1.getInputStream()));
 			while ((myCommandOutput = bufferedReader.readLine()) != null) {
+				System.out.println(myCommandOutput);
 				final String[] myRefactoredOutput = myCommandOutput.split("|");
-				System.out.println(myRefactoredOutput);
+				for (final String string : myRefactoredOutput) {
+					System.out.println(string);
+				}
 				myInvertedIndexOutPutCache.put(myRefactoredOutput[0],
 						new ArrayList<>(Arrays.asList(myRefactoredOutput[1].split("->"))));
 			}
