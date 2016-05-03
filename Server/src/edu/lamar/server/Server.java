@@ -20,7 +20,7 @@ public class Server extends AbstractServer {
 	private static final String HADOOP_HOME = "/usr/local/hadoop/bin/hadoop";
 
 	public static void main(final String[] args) {
-		final Server sv = new Server(5555);
+		final Server sv = new Server(1111);
 		try {
 			sv.listen(); // Start listening for connections
 			sv.console.accept();
@@ -52,85 +52,18 @@ public class Server extends AbstractServer {
 		if (clientMessage.getOperator() == (Operator.NONE)) {
 			System.out.println(clientMessage.getKeyWordsToBeSearched());
 			sendToAllClients(myInvertedIndexOutPutCache.get(clientMessage.getKeyWordsToBeSearched().get(0)).toString());
-			// String line;
-			// String outputToReturn = "";
-			// System.out.println("executing: " + Server.HADOOP_HOME + " fs
-			// -cat " + hadoopOutputPath + "/*|grep "
-			// + clientMessage.getKeyWordsToBeSearched().get(0));
-			// final Process p =
-			// Runtime.getRuntime().exec(Server.HADOOP_HOME + " fs -cat " +
-			// hadoopOutputPath
-			// + "/*|grep " +
-			// clientMessage.getKeyWordsToBeSearched().get(0));
-			// final BufferedReader bufferedReader = new BufferedReader(new
-			// InputStreamReader(p.getInputStream()));
-			// while ((line = bufferedReader.readLine()) != null) {
-			// final String[] s1 = line.split("->");
-			// outputToReturn = outputToReturn + s1[1];
-			// }
-			// sendToAllClients(outputToReturn);
 		} else if (clientMessage.getOperator() == Operator.NOT) {
 			final Set<String> myOutput = new HashSet<>(documentList);
-			myOutput.removeAll(myInvertedIndexOutPutCache.get(clientMessage.getKeyWordsToBeSearched().get(0)));
+			if ((clientMessage.getKeyWordsToBeSearched().get(0)) != null) {
+				myOutput.removeAll(myInvertedIndexOutPutCache.get(clientMessage.getKeyWordsToBeSearched().get(0)));
+			}
 			sendToAllClients(myOutput.toString());
-			// try {
-			// String line;
-			// final List<String> myKeywordContainingList = new
-			// ArrayList<String>();
-			// final List<String> myOutput = new ArrayList<String>();
-			// myOutput.addAll(documentList);
-			// System.out.println("executing: " + Server.HADOOP_HOME + " fs -cat
-			// " + hadoopOutputPath + "/*|grep "
-			// + clientMessage.getKeyWordsToBeSearched().get(0));
-			// final Process p = Runtime.getRuntime().exec(Server.HADOOP_HOME +
-			// " fs -cat " + hadoopOutputPath
-			// + "/*|grep " + clientMessage.getKeyWordsToBeSearched().get(0));
-			// final BufferedReader bufferedReader = new BufferedReader(new
-			// InputStreamReader(p.getInputStream()));
-			// while ((line = bufferedReader.readLine()) != null) {
-			// final String[] s1 = line.split("->");
-			// myKeywordContainingList.addAll(Arrays.asList(s1[1].split(",")));
-			// }
-			// myOutput.removeAll(myKeywordContainingList);
-			// sendToAllClients(myOutput.toString());
-			// } catch (final IOException e) {
-			// e.printStackTrace();
-			// }
 		} else if (clientMessage.getOperator() == Operator.OR) {
 			// final String line;
 			final Set<String> output = new HashSet<String>();
 			output.addAll(myInvertedIndexOutPutCache.get(clientMessage.getKeyWordsToBeSearched().get(0)));
 			output.addAll(myInvertedIndexOutPutCache.get(clientMessage.getKeyWordsToBeSearched().get(1)));
 			sendToAllClients(output.toString());
-			// try {
-			// System.out.println("executing :" + Server.HADOOP_HOME + " fs -cat
-			// " + hadoopOutputPath + "/*|grep "
-			// + clientMessage.getKeyWordsToBeSearched().get(0));
-			// final Process p1 = Runtime.getRuntime().exec(Server.HADOOP_HOME +
-			// " fs -cat " + hadoopOutputPath
-			// + "/*|grep " + clientMessage.getKeyWordsToBeSearched().get(0));
-			// BufferedReader bufferedReader = new BufferedReader(new
-			// InputStreamReader(p1.getInputStream()));
-			// while ((line = bufferedReader.readLine()) != null) {
-			// final String[] s1 = line.split("->");
-			// output.addAll(Arrays.asList(s1[1].split(",")));
-			// }
-			// System.out.println("executing : " + Server.HADOOP_HOME + " fs
-			// -cat " + hadoopOutputPath + "/*|grep "
-			// + clientMessage.getKeyWordsToBeSearched().get(1));
-			// final Process p = Runtime.getRuntime().exec(Server.HADOOP_HOME +
-			// " fs -cat " + hadoopOutputPath
-			// + "/*|grep " + clientMessage.getKeyWordsToBeSearched().get(1));
-			// bufferedReader = new BufferedReader(new
-			// InputStreamReader(p.getInputStream()));
-			// while ((line = bufferedReader.readLine()) != null) {
-			// final String[] s1 = line.split("->");
-			// output.addAll(Arrays.asList(s1[1].split(",")));
-			// }
-			// sendToAllClients(output.toString());
-			// } catch (final IOException e) {
-			// e.printStackTrace();
-			// }
 		} else if (clientMessage.getOperator() == Operator.AND) {
 			final Set<String> documentsOfFirstKeyword = new HashSet<>();
 			final Set<String> documentsOfSecondKeyword = new HashSet<>();
@@ -145,44 +78,6 @@ public class Server extends AbstractServer {
 				}
 			}
 			sendToAllClients(myFinalOutputToSend.toString());
-			// String line;
-			// final Set<String> output1 = new HashSet<String>();
-			// final Set<String> output2 = new HashSet<String>();
-			// final Set<String> output = new HashSet<String>();
-			// try {
-			// System.out.println(Server.HADOOP_HOME + " fs -cat " +
-			// hadoopOutputPath + "/*|grep "
-			// + clientMessage.getKeyWordsToBeSearched().get(0));
-			// final Process p1 = Runtime.getRuntime().exec(Server.HADOOP_HOME +
-			// " fs -cat " + hadoopOutputPath
-			// + "/*|grep " + clientMessage.getKeyWordsToBeSearched().get(0));
-			// BufferedReader bufferedReader = new BufferedReader(new
-			// InputStreamReader(p1.getInputStream()));
-			// while ((line = bufferedReader.readLine()) != null) {
-			// final String[] s1 = line.split("->");
-			// output1.addAll(Arrays.asList(s1[1].split(",")));
-			// }
-			// System.out.println(Server.HADOOP_HOME + " fs -cat " +
-			// hadoopOutputPath + "/*|grep "
-			// + clientMessage.getKeyWordsToBeSearched().get(1));
-			// final Process p = Runtime.getRuntime().exec(Server.HADOOP_HOME +
-			// " fs -cat " + hadoopOutputPath
-			// + "/*|grep " + clientMessage.getKeyWordsToBeSearched().get(1));
-			// bufferedReader = new BufferedReader(new
-			// InputStreamReader(p.getInputStream()));
-			// while ((line = bufferedReader.readLine()) != null) {
-			// final String[] s1 = line.split("->");
-			// output2.addAll(Arrays.asList(s1[1].split(",")));
-			// }
-			// for (final String string : output2) {
-			// if (output1.contains(string)) {
-			// output.add(string);
-			// }
-			// }
-			// sendToAllClients(output.toString());
-			// } catch (final IOException e) {
-			// e.printStackTrace();
-			// }
 		}
 	}
 
@@ -194,24 +89,6 @@ public class Server extends AbstractServer {
 
 	private void initialize() {
 		runInvertedIndex();
-		// updateInvertedIndexCache();
-		// try {
-		// String line;
-		// System.out.println("executing :" + Server.HADOOP_HOME + " fs -ls " +
-		// hadoopInputPath + " awk \'{print $8}\'"
-		// + " sed \'s/.*\\///\'");
-		// final Process p = Runtime.getRuntime().exec(
-		// Server.HADOOP_HOME + " fs -ls " + hadoopInputPath + "| awk \'{print
-		// $8}\'" + " |sed \'s/.*\\///\'");
-		// final BufferedReader bufferedReader = new BufferedReader(new
-		// InputStreamReader(p.getInputStream()));
-		// while ((line = bufferedReader.readLine()) != null) {
-		// documentList.add(line);
-		// }
-		// } catch (final IOException e) {
-		// e.printStackTrace();
-		// }
-
 	}
 
 	public void runInvertedIndex() {
@@ -239,12 +116,12 @@ public class Server extends AbstractServer {
 			final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(p1.getInputStream()));
 			while ((myCommandOutput = bufferedReader.readLine()) != null) {
 				System.out.println(myCommandOutput);
-				final String[] myRefactoredOutput = myCommandOutput.split("|");
+				final String[] myRefactoredOutput = myCommandOutput.split(" \\| ");
 				for (final String string : myRefactoredOutput) {
 					System.out.println(string);
 				}
 				myInvertedIndexOutPutCache.put(myRefactoredOutput[0],
-						new ArrayList<>(Arrays.asList(myRefactoredOutput[1].split("->"))));
+						new ArrayList<>(Arrays.asList(myRefactoredOutput[1].split(" -> "))));
 			}
 			System.out.println("inverted index result");
 			for (final String s : myInvertedIndexOutPutCache.keySet()) {

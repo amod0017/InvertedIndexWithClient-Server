@@ -32,6 +32,17 @@ public class Test {
 		list.add("am");
 		list.add("ro");
 		System.out.println(list.get(1));
+		final String string = "hadoop | document1.txt -> document2.txt";
+		final String[] myRefactoredOutput = string.split(" \\| ");
+		for (final String str : myRefactoredOutput) {
+			System.out.println(str);
+		}
+		System.out.println();
+		final String[] a = myRefactoredOutput[1].split(" -> ");
+		System.out.println(Arrays.asList(a).removeAll(null));
+		for (final String string2 : a) {
+			System.out.println(string2);
+		}
 
 	}
 }

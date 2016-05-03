@@ -93,7 +93,7 @@ public class InvertedIndexGui {
 		frmInvertedIndex.getContentPane().add(textField, gbc_textField);
 		textField.setColumns(10);
 		btnSearch = new JButton("Search");
-		client = new Client("localhost", 5555, this);
+		client = new Client("localhost", 1111, this);
 		try {
 			client.openConnection();
 		} catch (final IOException e1) {

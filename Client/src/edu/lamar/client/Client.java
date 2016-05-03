@@ -7,13 +7,6 @@ import edu.lamar.client.message.ClientMessage;
 import edu.lamar.client.message.Operator;
 
 public class Client extends AbstractClient {
-	InvertedIndexGui myGui;
-
-	public Client(final String host, final int port, final InvertedIndexGui frame) {
-		super(host, port);
-		myGui = frame;
-	}
-
 	public static void main(final String[] args) {
 		final Client c = new Client("localhost", 1111, null);
 		try {
@@ -24,13 +17,20 @@ public class Client extends AbstractClient {
 		}
 	}
 
+	InvertedIndexGui myGui;
+
+	public Client(final String host, final int port, final InvertedIndexGui frame) {
+		super(host, port);
+		myGui = frame;
+	}
+
 	@Override
 	protected void handleMessageFromServer(final Object msg) {
 		final String serverMessage = (String) msg;
 		System.out.println(serverMessage);
 		// JOptionPane.showMessageDialog(myGui.getFrmInvertedIndex(),
 		// serverMessage.getMyOutput());
-
+		myGui.getResultPane().setText("");
 		myGui.getResultPane().setEnabled(true);
 		myGui.getResultPane().setEditable(true);
 		myGui.getResultPane().append(serverMessage);

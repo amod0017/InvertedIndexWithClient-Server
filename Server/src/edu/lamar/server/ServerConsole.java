@@ -48,7 +48,7 @@ public class ServerConsole {
 				e.printStackTrace();
 				System.out.println("Error in quitting server");
 			}
-		} else if (message.equalsIgnoreCase("#runinvertedindex")) {
+		} else if (message.equalsIgnoreCase("#run")) {
 			server.runInvertedIndex();
 		}
 	}
