@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.lamar.client.message.ClientMessage;
@@ -27,19 +29,21 @@ public class Server extends AbstractServer {
 		}
 	}
 
-	private final List<String> documentList = new ArrayList<String>();
+	private final Map<String, List<String>> myInvertedIndexOutPutCache;
+
+	private final Set<String> documentList = new HashSet<String>();
 
 	final String hadoopInputPath = "/user/hduser/myinput/input";
 
-	final String hadoopOutputPath = "/user/hduser/newoutput";
+	final String hadoopOutputPath = "/user/hduser/newoutput/*";
 
 	private final ServerConsole console;
 
 	public Server(final int port) {
 		super(port);
+		myInvertedIndexOutPutCache = new HashMap<String, List<String>>();
 		initialize();
 		console = new ServerConsole(this);
-
 	}
 
 	@Override
@@ -47,94 +51,138 @@ public class Server extends AbstractServer {
 		final ClientMessage clientMessage = (ClientMessage) msg;
 		if (clientMessage.getOperator() == (Operator.NONE)) {
 			System.out.println(clientMessage.getKeyWordsToBeSearched());
-			// just get the word with grep command
-			try {
-				String line;
-				String outputToReturn = "";
-				final Process p = Runtime.getRuntime().exec(Server.HADOOP_HOME + " fs -cat " + hadoopOutputPath
-						+ "/*|grep " + clientMessage.getKeyWordsToBeSearched().get(0));
-				final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-				while ((line = bufferedReader.readLine()) != null) {
-					final String[] s1 = line.split("->");
-					outputToReturn = outputToReturn + s1[1];
-				}
-				sendToAllClients(outputToReturn);
-			} catch (final IOException e) {
-				e.printStackTrace();
-			}
+			sendToAllClients(myInvertedIndexOutPutCache.get(clientMessage.getKeyWordsToBeSearched().get(0)).toString());
+			// String line;
+			// String outputToReturn = "";
+			// System.out.println("executing: " + Server.HADOOP_HOME + " fs
+			// -cat " + hadoopOutputPath + "/*|grep "
+			// + clientMessage.getKeyWordsToBeSearched().get(0));
+			// final Process p =
+			// Runtime.getRuntime().exec(Server.HADOOP_HOME + " fs -cat " +
+			// hadoopOutputPath
+			// + "/*|grep " +
+			// clientMessage.getKeyWordsToBeSearched().get(0));
+			// final BufferedReader bufferedReader = new BufferedReader(new
+			// InputStreamReader(p.getInputStream()));
+			// while ((line = bufferedReader.readLine()) != null) {
+			// final String[] s1 = line.split("->");
+			// outputToReturn = outputToReturn + s1[1];
+			// }
+			// sendToAllClients(outputToReturn);
 		} else if (clientMessage.getOperator() == Operator.NOT) {
-			try {
-				String line;
-				final List<String> myKeywordContainingList = new ArrayList<String>();
-				final List<String> myOutput = new ArrayList<String>();
-				myOutput.addAll(documentList);
-				final Process p = Runtime.getRuntime().exec(Server.HADOOP_HOME + " fs -cat " + hadoopOutputPath
-						+ "/*|grep " + clientMessage.getKeyWordsToBeSearched().get(0));
-				final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-				while ((line = bufferedReader.readLine()) != null) {
-					final String[] s1 = line.split("->");
-					myKeywordContainingList.addAll(Arrays.asList(s1[1].split(",")));
-				}
-				myOutput.removeAll(myKeywordContainingList);
-				sendToAllClients(myOutput.toString());
-			} catch (final IOException e) {
-				e.printStackTrace();
-			}
+			final Set<String> myOutput = new HashSet<>(documentList);
+			myOutput.removeAll(myInvertedIndexOutPutCache.get(clientMessage.getKeyWordsToBeSearched().get(0)));
+			sendToAllClients(myOutput.toString());
+			// try {
+			// String line;
+			// final List<String> myKeywordContainingList = new
+			// ArrayList<String>();
+			// final List<String> myOutput = new ArrayList<String>();
+			// myOutput.addAll(documentList);
+			// System.out.println("executing: " + Server.HADOOP_HOME + " fs -cat
+			// " + hadoopOutputPath + "/*|grep "
+			// + clientMessage.getKeyWordsToBeSearched().get(0));
+			// final Process p = Runtime.getRuntime().exec(Server.HADOOP_HOME +
+			// " fs -cat " + hadoopOutputPath
+			// + "/*|grep " + clientMessage.getKeyWordsToBeSearched().get(0));
+			// final BufferedReader bufferedReader = new BufferedReader(new
+			// InputStreamReader(p.getInputStream()));
+			// while ((line = bufferedReader.readLine()) != null) {
+			// final String[] s1 = line.split("->");
+			// myKeywordContainingList.addAll(Arrays.asList(s1[1].split(",")));
+			// }
+			// myOutput.removeAll(myKeywordContainingList);
+			// sendToAllClients(myOutput.toString());
+			// } catch (final IOException e) {
+			// e.printStackTrace();
+			// }
 		} else if (clientMessage.getOperator() == Operator.OR) {
-			String line;
+			// final String line;
 			final Set<String> output = new HashSet<String>();
-			try {
-				final Process p1 = Runtime.getRuntime().exec(Server.HADOOP_HOME + " fs -cat " + hadoopOutputPath
-						+ "/*|grep " + clientMessage.getKeyWordsToBeSearched().get(0));
-				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(p1.getInputStream()));
-				while ((line = bufferedReader.readLine()) != null) {
-					final String[] s1 = line.split("->");
-					output.addAll(Arrays.asList(s1[1].split(",")));
-				}
-				final Process p = Runtime.getRuntime().exec(Server.HADOOP_HOME + " fs -cat " + hadoopOutputPath
-						+ "/*|grep " + clientMessage.getKeyWordsToBeSearched().get(1));
-				bufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-				while ((line = bufferedReader.readLine()) != null) {
-					final String[] s1 = line.split("->");
-					output.addAll(Arrays.asList(s1[1].split(",")));
-				}
-				sendToAllClients(output.toString());
-			} catch (final IOException e) {
-				e.printStackTrace();
-			}
+			output.addAll(myInvertedIndexOutPutCache.get(clientMessage.getKeyWordsToBeSearched().get(0)));
+			output.addAll(myInvertedIndexOutPutCache.get(clientMessage.getKeyWordsToBeSearched().get(1)));
+			sendToAllClients(output.toString());
+			// try {
+			// System.out.println("executing :" + Server.HADOOP_HOME + " fs -cat
+			// " + hadoopOutputPath + "/*|grep "
+			// + clientMessage.getKeyWordsToBeSearched().get(0));
+			// final Process p1 = Runtime.getRuntime().exec(Server.HADOOP_HOME +
+			// " fs -cat " + hadoopOutputPath
+			// + "/*|grep " + clientMessage.getKeyWordsToBeSearched().get(0));
+			// BufferedReader bufferedReader = new BufferedReader(new
+			// InputStreamReader(p1.getInputStream()));
+			// while ((line = bufferedReader.readLine()) != null) {
+			// final String[] s1 = line.split("->");
+			// output.addAll(Arrays.asList(s1[1].split(",")));
+			// }
+			// System.out.println("executing : " + Server.HADOOP_HOME + " fs
+			// -cat " + hadoopOutputPath + "/*|grep "
+			// + clientMessage.getKeyWordsToBeSearched().get(1));
+			// final Process p = Runtime.getRuntime().exec(Server.HADOOP_HOME +
+			// " fs -cat " + hadoopOutputPath
+			// + "/*|grep " + clientMessage.getKeyWordsToBeSearched().get(1));
+			// bufferedReader = new BufferedReader(new
+			// InputStreamReader(p.getInputStream()));
+			// while ((line = bufferedReader.readLine()) != null) {
+			// final String[] s1 = line.split("->");
+			// output.addAll(Arrays.asList(s1[1].split(",")));
+			// }
+			// sendToAllClients(output.toString());
+			// } catch (final IOException e) {
+			// e.printStackTrace();
+			// }
 		} else if (clientMessage.getOperator() == Operator.AND) {
-			String line;
-			final Set<String> output1 = new HashSet<String>();
-			final Set<String> output2 = new HashSet<String>();
-			final Set<String> output = new HashSet<String>();
-			try {
-				System.out.println(Server.HADOOP_HOME + " fs -cat " + hadoopOutputPath + "/*|grep "
-						+ clientMessage.getKeyWordsToBeSearched().get(0));
-				final Process p1 = Runtime.getRuntime().exec(Server.HADOOP_HOME + " fs -cat " + hadoopOutputPath
-						+ "/*|grep " + clientMessage.getKeyWordsToBeSearched().get(0));
-				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(p1.getInputStream()));
-				while ((line = bufferedReader.readLine()) != null) {
-					final String[] s1 = line.split("->");
-					output1.addAll(Arrays.asList(s1[1].split(",")));
+			final Set<String> documentsOfFirstKeyword = new HashSet<>();
+			final Set<String> documentsOfSecondKeyword = new HashSet<>();
+			documentsOfFirstKeyword
+					.addAll(myInvertedIndexOutPutCache.get(clientMessage.getKeyWordsToBeSearched().get(0)));
+			documentsOfSecondKeyword
+					.addAll(myInvertedIndexOutPutCache.get(clientMessage.getKeyWordsToBeSearched().get(1)));
+			final Set<String> myFinalOutputToSend = new HashSet<>();
+			for (final String string : documentsOfFirstKeyword) {
+				if (documentsOfSecondKeyword.contains(string)) {
+					myFinalOutputToSend.add(string);
 				}
-				System.out.println(Server.HADOOP_HOME + " fs -cat " + hadoopOutputPath + "/*|grep "
-						+ clientMessage.getKeyWordsToBeSearched().get(1));
-				final Process p = Runtime.getRuntime().exec(Server.HADOOP_HOME + " fs -cat " + hadoopOutputPath
-						+ "/*|grep " + clientMessage.getKeyWordsToBeSearched().get(1));
-				bufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-				while ((line = bufferedReader.readLine()) != null) {
-					final String[] s1 = line.split("->");
-					output2.addAll(Arrays.asList(s1[1].split(",")));
-				}
-				for (final String string : output2) {
-					if (output1.contains(string)) {
-						output.add(string);
-					}
-				}
-				sendToAllClients(output.toString());
-			} catch (final IOException e) {
-				e.printStackTrace();
 			}
+			sendToAllClients(myFinalOutputToSend.toString());
+			// String line;
+			// final Set<String> output1 = new HashSet<String>();
+			// final Set<String> output2 = new HashSet<String>();
+			// final Set<String> output = new HashSet<String>();
+			// try {
+			// System.out.println(Server.HADOOP_HOME + " fs -cat " +
+			// hadoopOutputPath + "/*|grep "
+			// + clientMessage.getKeyWordsToBeSearched().get(0));
+			// final Process p1 = Runtime.getRuntime().exec(Server.HADOOP_HOME +
+			// " fs -cat " + hadoopOutputPath
+			// + "/*|grep " + clientMessage.getKeyWordsToBeSearched().get(0));
+			// BufferedReader bufferedReader = new BufferedReader(new
+			// InputStreamReader(p1.getInputStream()));
+			// while ((line = bufferedReader.readLine()) != null) {
+			// final String[] s1 = line.split("->");
+			// output1.addAll(Arrays.asList(s1[1].split(",")));
+			// }
+			// System.out.println(Server.HADOOP_HOME + " fs -cat " +
+			// hadoopOutputPath + "/*|grep "
+			// + clientMessage.getKeyWordsToBeSearched().get(1));
+			// final Process p = Runtime.getRuntime().exec(Server.HADOOP_HOME +
+			// " fs -cat " + hadoopOutputPath
+			// + "/*|grep " + clientMessage.getKeyWordsToBeSearched().get(1));
+			// bufferedReader = new BufferedReader(new
+			// InputStreamReader(p.getInputStream()));
+			// while ((line = bufferedReader.readLine()) != null) {
+			// final String[] s1 = line.split("->");
+			// output2.addAll(Arrays.asList(s1[1].split(",")));
+			// }
+			// for (final String string : output2) {
+			// if (output1.contains(string)) {
+			// output.add(string);
+			// }
+			// }
+			// sendToAllClients(output.toString());
+			// } catch (final IOException e) {
+			// e.printStackTrace();
+			// }
 		}
 	}
 
@@ -146,19 +194,23 @@ public class Server extends AbstractServer {
 
 	private void initialize() {
 		runInvertedIndex();
-		try {
-			String line;
-			System.out.println("executing :" + Server.HADOOP_HOME + " fs -ls " + hadoopInputPath + " awk \'{print $8}\'"
-					+ " sed \'s/.*\\///\'");
-			final Process p = Runtime.getRuntime().exec(
-					Server.HADOOP_HOME + " fs -ls " + hadoopInputPath + " awk \'{print $8}\'" + " sed \'s/.*\\///\'");
-			final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			while ((line = bufferedReader.readLine()) != null) {
-				documentList.add(line);
-			}
-		} catch (final IOException e) {
-			e.printStackTrace();
-		}
+		// updateInvertedIndexCache();
+		// try {
+		// String line;
+		// System.out.println("executing :" + Server.HADOOP_HOME + " fs -ls " +
+		// hadoopInputPath + " awk \'{print $8}\'"
+		// + " sed \'s/.*\\///\'");
+		// final Process p = Runtime.getRuntime().exec(
+		// Server.HADOOP_HOME + " fs -ls " + hadoopInputPath + "| awk \'{print
+		// $8}\'" + " |sed \'s/.*\\///\'");
+		// final BufferedReader bufferedReader = new BufferedReader(new
+		// InputStreamReader(p.getInputStream()));
+		// while ((line = bufferedReader.readLine()) != null) {
+		// documentList.add(line);
+		// }
+		// } catch (final IOException e) {
+		// e.printStackTrace();
+		// }
 
 	}
 
@@ -166,15 +218,37 @@ public class Server extends AbstractServer {
 		try {
 			System.out.println("executing :" + Server.HADOOP_HOME + " jar " + Server.INVERTED_INDEX_JAR + " "
 					+ hadoopInputPath + " " + hadoopOutputPath);
-			Runtime.getRuntime().exec(Server.HADOOP_HOME + " jar " + Server.INVERTED_INDEX_JAR + " " + hadoopInputPath
-					+ " " + hadoopOutputPath);
-			Thread.sleep(2000);
+			final Process p = Runtime.getRuntime().exec(Server.HADOOP_HOME + " jar " + Server.INVERTED_INDEX_JAR + " "
+					+ hadoopInputPath + " " + hadoopOutputPath);
+			p.waitFor();
 		} catch (final IOException e) {
 			e.printStackTrace();
 		} catch (final InterruptedException e) {
 			e.printStackTrace();
 		}
+		updateInvertedIndexCache();
+	}
 
+	private void updateInvertedIndexCache() {
+		String myCommandOutput;
+		Process p1;
+		try {
+			p1 = Runtime.getRuntime().exec(Server.HADOOP_HOME + " fs -cat " + hadoopOutputPath);
+
+			final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(p1.getInputStream()));
+			while ((myCommandOutput = bufferedReader.readLine()) != null) {
+				final String[] myRefactoredOutput = myCommandOutput.split("->");
+				myInvertedIndexOutPutCache.put(myRefactoredOutput[0],
+						new ArrayList<>(Arrays.asList(myRefactoredOutput[1].split(","))));
+			}
+			System.out.println("inverted index result");
+			for (final String s : myInvertedIndexOutPutCache.keySet()) {
+				System.out.println(myInvertedIndexOutPutCache.get(s));
+				documentList.addAll(myInvertedIndexOutPutCache.get(s));
+			}
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

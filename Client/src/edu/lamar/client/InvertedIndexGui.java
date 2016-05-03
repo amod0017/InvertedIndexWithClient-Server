@@ -129,12 +129,13 @@ public class InvertedIndexGui {
 			}
 
 			private void handleAndOperator(final List<String> myKeywordList, final String[] myKeywordsArray) {
-				if (myKeywordsArray.length > 3) {
+				if ((myKeywordsArray.length > 3) || (myKeywordsArray.length < 3)) {
 					JOptionPane.showMessageDialog(frmInvertedIndex,
 							"Only two keyword are supported with and operator as of now");
 					return;
 				}
-				myKeywordList.add(myKeywordsArray[1]);
+				myKeywordList.add(myKeywordsArray[0]);
+				myKeywordList.add(myKeywordsArray[2]);
 				try {
 					client.sendToServer(new ClientMessage(myKeywordList, Operator.AND));
 				} catch (final IOException e) {
@@ -145,7 +146,7 @@ public class InvertedIndexGui {
 
 			private void handleNotKeyword(final List<String> myKeywordList, final String[] myKeywordsArray) {
 				if (myKeywordsArray.length > 2) {
-					JOptionPane.showMessageDialog(frmInvertedIndex, "Please enter only one keyword");
+					JOptionPane.showMessageDialog(frmInvertedIndex, "Please enter only one keyword after not");
 					return;
 				}
 				myKeywordList.add(myKeywordsArray[1]);
@@ -158,12 +159,13 @@ public class InvertedIndexGui {
 			}
 
 			private void handleOrOperator(final List<String> myKeywordList, final String[] myKeywordsArray) {
-				if (myKeywordsArray.length > 3) {
+				if ((myKeywordsArray.length > 3) || (myKeywordsArray.length < 3)) {
 					JOptionPane.showMessageDialog(frmInvertedIndex,
 							"Only two keyword are supported with or operator as of now");
 					return;
 				}
-				myKeywordList.add(myKeywordsArray[1]);
+				myKeywordList.add(myKeywordsArray[0]);
+				myKeywordList.add(myKeywordsArray[2]);
 				try {
 					client.sendToServer(new ClientMessage(myKeywordList, Operator.OR));
 				} catch (final IOException e) {

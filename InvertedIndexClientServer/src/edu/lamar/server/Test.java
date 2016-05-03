@@ -1,6 +1,8 @@
 package edu.lamar.server;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Test {
 
@@ -26,6 +28,10 @@ public class Test {
 		final String s = "hadoop->document1,document2";
 		final String[] s1 = s.split("->");
 		System.out.println(Arrays.asList(s1[1].split(",")));
+		final List<String> list = new ArrayList<>();
+		list.add("am");
+		list.add("ro");
+		System.out.println(list.get(1));
 
 	}
 }
