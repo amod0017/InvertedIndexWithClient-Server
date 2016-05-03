@@ -117,6 +117,7 @@ public class InvertedIndexGui {
 						return;
 					} else {
 						JOptionPane.showMessageDialog(frmInvertedIndex, "Please enter correct keyword");
+						return;
 					}
 				}
 				myKeywordList.add(myKeywords);
